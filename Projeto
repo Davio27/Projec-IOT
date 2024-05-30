@@ -1,46 +1,48 @@
 // C++ code
 //
-int moisture = 0;
- 
+#include <Adafruit_LiquidCrystal.h>
+
+int Moisture = 0;
+
+int unnamed = 0;
+
+int i = 0;
+
+int j = 0;
+
+int seconds = 0;
+
+Adafruit_LiquidCrystal lcd_1(0);
+
 void setup()
 {
+  lcd_1.begin(16, 2);
   pinMode(A0, OUTPUT);
-  pinMode(A1, INPUT);
-  Serial.begin(9600);
-  pinMode(8, OUTPUT);
+  pinMode(A0, INPUT);
   pinMode(10, OUTPUT);
-  pinMode(12, OUTPUT);
+
+  lcd_1.print("THE MAB");
 }
- 
+
 void loop()
 {
-  // Apply power to the soil moisture sensor
+  lcd_1.setCursor(0, 1);
+  lcd_1.print(seconds);
+  lcd_1.setBacklight(1);
+  seconds += 0;
+  delay(500); // Wait for 500 millisecond(s)
+  lcd_1.setBacklight(1);
+  seconds += 1;
+  delay(500); // Wait for 500 millisecond(s)
   digitalWrite(A0, HIGH);
-  delay(10); // Wait for 10 millisecond(s)
-  moisture = analogRead(A1);
-  // Turn off the sensor to reduce metal corrosion
-  // over time
-  digitalWrite(A0, LOW);
-  Serial.println(moisture);
-  digitalWrite(8, LOW);
-  digitalWrite(10, LOW);
-  digitalWrite(12, LOW);
-  if (moisture < 200) {
-    digitalWrite(12, HIGH);
+  Moisture = analogRead(A0);
+  // Umidade
+  digitalWrite(A0, HIGH);
+  if (Moisture < 800) {
+    digitalWrite(10, LOW);
   } else {
-    if (moisture < 400) {
-      digitalWrite(12, HIGH);
-    } else {
-      if (moisture < 600) {
-        digitalWrite(10, HIGH);
-      } else {
-        if (moisture < 800) {
-          digitalWrite(10, HIGH);
-        } else {
-          digitalWrite(8, HIGH);
-        }
-      }
+    if (Moisture > 600) {
+      digitalWrite(10, HIGH);
     }
   }
-  delay(100); // Wait for 100 millisecond(s)
 }
