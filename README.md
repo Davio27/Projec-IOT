@@ -1,6 +1,3 @@
-Claro! Abaixo está um exemplo de README completo e detalhado para o repositório do GitHub do projeto "Controlador de Irrigação Automático - The MAB". Este README abrange informações essenciais sobre o projeto, incluindo uma visão geral, funcionalidades principais, instruções de instalação, configuração e uso, além de outras informações úteis.
-
----
 
 # Controlador de Irrigação Automático - The MAB
 
