@@ -1,0 +1,127 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// Define LCD
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// Define pins
+const int sensorPin = A0;
+const int relayPin = 10;
+const int buttonInjectPin = 7;
+const int buttonIncreasePin = 6;
+const int buttonDecreasePin = 5;
+const int buttonToggleTimerPin = 4;
+
+// Variables for button states
+bool buttonInjectState = LOW;
+bool buttonIncreaseState = LOW;
+bool buttonDecreaseState = LOW;
+bool buttonToggleTimerState = LOW;
+
+// Variables for timing
+unsigned long previousMillis = 0;
+const long interval = 60000;  // 1 minute
+int timerInterval = 60;  // Default to 60 seconds
+bool timerEnabled = true;
+
+void setup() {
+  // Initialize LCD
+  lcd.begin();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Projeto de");
+  lcd.setCursor(0, 1);
+  lcd.print("Irrigacao Auto");
+  delay(2000);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("THE MAB");
+  delay(2000);
+  lcd.clear();
+  
+  // Initialize pins
+  pinMode(sensorPin, INPUT);
+  pinMode(relayPin, OUTPUT);
+  pinMode(buttonInjectPin, INPUT_PULLUP);
+  pinMode(buttonIncreasePin, INPUT_PULLUP);
+  pinMode(buttonDecreasePin, INPUT_PULLUP);
+  pinMode(buttonToggleTimerPin, INPUT_PULLUP);
+
+  // Set initial relay state
+  digitalWrite(relayPin, LOW);
+}
+
+void loop() {
+  // Read buttons
+  buttonInjectState = !digitalRead(buttonInjectPin);
+  buttonIncreaseState = !digitalRead(buttonIncreasePin);
+  buttonDecreaseState = !digitalRead(buttonDecreasePin);
+  buttonToggleTimerState = !digitalRead(buttonToggleTimerPin);
+
+  // Handle button actions
+  if (buttonInjectState) {
+    injectWater();
+  }
+
+  if (buttonIncreaseState) {
+    adjustTimerInterval(10);
+  }
+
+  if (buttonDecreaseState) {
+    adjustTimerInterval(-10);
+  }
+
+  if (buttonToggleTimerState) {
+    toggleTimer();
+  }
+
+  // Timer-based irrigation
+  if (timerEnabled) {
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= timerInterval * 1000) {
+      previousMillis = currentMillis;
+      checkSoilMoisture();
+    }
+  }
+
+  // Update LCD display
+  lcd.setCursor(0, 0);
+  lcd.print("Tempo: ");
+  lcd.print(timerInterval);
+  lcd.print(" s");
+
+  if (timerEnabled) {
+    lcd.setCursor(0, 1);
+    lcd.print("Timer: ON ");
+  } else {
+    lcd.setCursor(0, 1);
+    lcd.print("Timer: OFF");
+  }
+}
+
+void injectWater() {
+  digitalWrite(relayPin, HIGH);
+  delay(2000);  // Run pump for 2 seconds
+  digitalWrite(relayPin, LOW);
+}
+
+void adjustTimerInterval(int adjustment) {
+  timerInterval += adjustment;
+  if (timerInterval < 10) {
+    timerInterval = 10;
+  }
+}
+
+void toggleTimer() {
+  timerEnabled = !timerEnabled;
+  delay(500);  // Debounce delay
+}
+
+void checkSoilMoisture() {
+  int sensorValue = analogRead(sensorPin);
+  if (sensorValue < 500) {  // Example threshold
+    digitalWrite(relayPin, HIGH);
+    delay(2000);  // Run pump for 2 seconds
+    digitalWrite(relayPin, LOW);
+  }
+}
